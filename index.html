@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitching...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a191c;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+
+    <script>
+        window.addEventListener('load', init);
+
+        function init() {
+            // Audio 
+            var url = 'http://dl.dropbox.com/s/im6vyyis7q9agto/Glitch%20Sound%20Effects.mp3';
+    window.AudioContext = window.AudioContext||window.webkitAudioContext; //fix up prefixing
+    var context = new AudioContext(); //context
+    var source = context.createBufferSource(); //source node
+    source.connect(context.destination); //connect source to speakers so we can hear it
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true); 
+    request.responseType = 'arraybuffer'; //the  response is an array of bits
+    request.onload = function() {
+        context.decodeAudioData(request.response, function(response) {
+            source.buffer = response;
+            source.start(0); //play audio immediately
+            source.loop = true;
+        }, function () { console.error('The request failed.'); } );
+    }
+    request.send();
+
+            // Canvas setup
+            const canvas = document.querySelector("canvas");
+            const ctx = canvas.getContext("2d");
+
+            let width = innerWidth;
+            let height = innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            // Colors and animation variables
+            const colors = Array.from({ length: 10 }, () => `hsl(${Math.random() * 360}, 100%, 50%)`);
+            let linePos = 0;
+
+            function drawText() {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                ctx.font = "5vh Bungee Outline";
+                ctx.shadowBlur = 50;
+                ctx.shadowColor = color;
+                ctx.fillStyle = color;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.setTransform(1, -0.15, 0, 1, 0, -9);
+                ctx.fillText("`ᴴᵗᵗየ", width / 2, height / 2 - 6);
+
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.fillStyle = 'white'; // More consistent main text color
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = "8vh Bungee Inline";
+                ctx.fillText("SOLOLEARN", width / 2, height / 2 + height / 10);
+            }
+
+            function glitchEffect() {
+                ctx.fillStyle = "#1a191c";
+                ctx.fillRect(0, 0, width, height);
+                
+                drawText();
+                
+                for (let i = 0; i < 1000; i++) {
+                    // Glitchy rectangles
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`;
+                    ctx.fillRect(Math.random() * width, Math.random() * height, Math.random() * 50 + 1, Math.random() * 50 + 1);
+
+                    ctx.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.5})`;
+                    ctx.fillRect(Math.random() * width, Math.random() * height, Math.random() * 10 + 1, Math.random() * 10 + 1);
+                }
+
+                // Random offset distortion effect
+                const offset = Math.random() * 50;
+                ctx.drawImage(canvas, offset, offset, width - offset * 2, height - offset * 2);
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                glitchEffect();
+            }
+
+            // Initialize animation
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                width = innerWidth;
+                height = innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            });
+        }
+    </script>
+</body>
+</html>
